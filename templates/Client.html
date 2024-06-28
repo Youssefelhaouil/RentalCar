@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List of Cars</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+
+  <nav class="bg-white p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <!-- Brand/logo -->
+      <a class="navbar-brand" href="/">
+        <span class="font-bold text-2xl text-center text-gray-400 mt-2">
+          You<span class="text-indigo-500">Cars</span>
+        </span> </a>
+      <button id="logoutBtn"
+        class="w-16 h-10 bg-indigo-700 hover:bg-indigo-500 text-white font-bold rounded-lg  ">LogOut</button>
+    </div>
+  </nav>
+
+  <!-- Modify the display of refusal message -->
+  {% if refusal_message %}
+  <div class="container mx-auto mt-4">
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline">Sorry, Your Reservation<strong>{{ car.marque }} {{ car.modele
+          }}</strong> has been refused. Here is why: <strong>{{ refusal_message }}</strong></span>
+    </div>
+  </div>
+  {% endif %}
+  {% if accept_message %}
+  <div class="container mx-auto mt-4">
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline">Congratulation, Your Reservation<strong>{{ car.marque }} {{ car.modele
+          }}</strong> has been accepted. <strong>{{ accept_message }}</strong></span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="container mx-auto mt-10">
+    <!-- Add a welcoming message for the client -->
+    <div class="mb-10 ">
+      <h2 class="flex justify-center text-3xl font-bold text-gray-500 ">Welcome,  <span class="text-center text-indigo-500 hover:text-indigo-400 underline decoration-indigo-500 ">{{
+          client.nom }} {{ client.prenom }}</span>
+      </h2>
+      <p class="flex justify-center mt-2">You Can Book Your car Now</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for car in cars %}
+      <div class="bg-white rounded-lg shadow-md">
+        <img src="{{ url_for('static', filename='images/' + (car.image_data or '')) }}"
+          class="card-img-top w-full h-48 object-cover" alt="Car Image">
+        <div class="p-4">
+          <h5 class="font-bold text-xl mb-2 text-center text-indigo-500">{{ car.marque }} {{ car.modele }}</h5>
+          <p class="text-gray-700">Immatriculation: {{ car.immatriculation }}</p>
+          <p class="text-gray-700">Category: {{ car.categorie }}</p>
+          <p class="text-gray-700">Price: {{ car.prix }}</p>
+          {% if car.disponibilite %}
+          <span
+            class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+            <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+            Available
+          </span> {% else %}
+          <span
+            class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
+            <span class="w-2 h-2 me-1 bg-red-500 rounded-full"></span>
+            Unavailable
+          </span> 
+          {% endif %}
+          <button class="block flex justify-center bg-indigo-500 hover:bg-indigo-300  text-white px-4 py-2 rounded mt-4 reserve-now-btn"
+            data-car-id="{{ car.id_voiture }}" data-client-id="{{ client.id_client }}">Reserve Now</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    // Reserve Now button click event handler
+    $('.reserve-now-btn').click(function () {
+      var carId = $(this).data('car-id');
+      var clientId = $(this).data('client-id');
+      reserveNow(carId, clientId);
+    });
+
+    // Logout button click event handler
+    $("#logoutBtn").click(function () {
+      window.location.href = "/";
+      // Add a new history entry for the home page
+      history.pushState(null, null, "/");
+    });
+
+    // Function to reserve a car
+    function reserveNow(carId, clientId) {
+      // Make AJAX request to reserve the car
+      $.ajax({
+        url: '/reserve_car',
+        method: 'POST',
+        data: { carId: carId, clientId: clientId },
+        success: function (response) {
+          alert(response); // Show success message
+          window.location.reload(); // Reload the page after successful reservation
+        },
+        error: function (xhr, status, error) {
+          console.error(error);
+          alert('Error reserving the car: ' + error);
+        }
+      });
+    }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% if user_type == 'admin' %}
+    <title>Administrator Dashboard</title>
+    {% elif user_type == 'manager' %}
+    <title>Manager Dashboard</title>
+    {% endif %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Custom styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            width: 250px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <main class="absolute right-0 w-full">
+        <nav class="bg-white shadow-lg">
+            <div class="container mx-auto p-4 rounded-lg flex justify-between items-center">
+                <!-- Brand/logo -->
+                <a class="flex items-center" href="/">
+                    <span class="font-bold text-xl text-center text-gray-400 mt-2">
+                        You<span class="text-indigo-400">Cars</span>
+                    </span>
+                </a>
+
+                <!-- Toggle button for mobile -->
+                <button
+                    class="navbar-toggler block lg:hidden px-3 py-2 border rounded text-gray-500 border-gray-600 hover:text-gray-700 hover:border-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex justify-start ml-32 ">
+                    {% if user_type == 'admin' %}
+                    <h1 class="font-bold text-2xl"> <span class="text-indigo-500">Administrator </span>Dashboard </h1>
+                    {% elif user_type == 'manager' %}
+                    <h1>Manager Dashboard</h1>
+                    {% endif %}
+
+                </div>
+
+                <div class=" hidden lg:flex lg:items-center">
+                    <!-- Navigation links -->
+                    <ul class="flex space-x-6">
+                        <li class="nav-item">
+                            <button id="logoutBtn"
+                                class="w-16 h-10 bg-indigo-700 hover:bg-indigo-500 text-white font-bold rounded-lg  ">LogOut</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+    </main>
+    <div class="sidebar fixed top-0 left-0 h-full bg-indigo-900 text-white p-4">
+        <a href="#" class="no-underline flex justify-center text-white ">
+            <span class="font-bold text-xl text-center text-gray-400 mt-2">
+                You<span class="text-indigo-300">Cars</span>
+            </span>
+        </a>
+        <ul class="pt-16 space-y-4">
+            <li class="nav-item text-center hover:bg-indigo-500">
+                <a class="nav-link text-white hover:text-gray-400 transition duration-300" href="#"
+                    onclick="loadContent('cars')"> <i class="fa-solid fa-car"></i> Cars</a>
+            </li>
+            {% if user_type == 'admin' %}
+            <li class="nav-item text-center hover:bg-indigo-500">
+                <a class="nav-link text-white hover:text-gray-400 transition duration-300" href="#"
+                    onclick="loadContent('managers')"> <i class="fa-solid fa-user"></i> Managers</a>
+            </li>
+            {% endif %}
+            <li class="nav-item text-center hover:bg-indigo-500">
+                <a class="nav-link text-white hover:text-gray-400 transition duration-300" href="#"
+                    onclick="loadContent('clients')"> <i class="fa-solid fa-child"></i> Clients</a>
+            </li>
+            <li class="nav-item text-center hover:bg-indigo-500">
+                <a class="nav-link text-white hover:text-gray-400 transition duration-300" href="#"
+                    onclick="loadContent('reservations')"> <i class="fa-solid fa-car"></i> Reservations</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content p-8" id="main-content">
+        <div class="mt-32">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-indigo-500">
+                    <h2 class="text-xl font-bold text-indigo-500">Number of Clients</h2>
+                    <p>{{ stats.num_clients }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-indigo-500">Number of Cars</h2>
+                    <p>{{ stats.num_cars }}</p>
+                </div>
+                {% if user_type == 'admin' %}
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-indigo-500">Number of Managers</h2>
+                    <p>{{ stats.num_managers }}</p>
+                </div>
+                {% endif %}
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-indigo-500">Number of Reservations</h2>
+                    <p>{{ stats.num_reservations }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-indigo-500">Accepted Reservations</h2>
+                    <p>{{ stats.num_accepted }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-indigo-500">Refused Reservations</h2>
+                    <p>{{ stats.num_refused }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function loadContent(page) {
+            $.get("/" + page, function (data) {
+                $("#main-content").html(data);
+            });
+        }
+        // Logout function
+        document.querySelector("#logoutBtn").addEventListener("click", function () {
+            window.location.href = "/";
+            // Add a new history entry for the home page
+            history.pushState(null, null, "/");
+        });
+    </script>
+</body>
+
+</html>
